@@ -1,17 +1,19 @@
 <?php
+
+//POSTされた場合のみ処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once("data.php");
 
-    $comment_id = $comment::getId() + 1;
-    $comment->setComment($_POST["comment"], $comment_id);
-    echo $comment_id;
-
-    $insert = "INSERT INTO `table` (id, username, comment, date) VALUES (:id, :username, :comment, :date)";
+    //DBへINSERTしてTOPへ戻る
+    $insert = "INSERT INTO `table` (username, comment, password, date, ipaddr) VALUES (:username, :comment, :password, :date, :ipaddr)";
     $stmt = $pdo->prepare($insert);
-    $param = array(':id' => $comment_id, ':username' => 'testuser', ':comment' => $_POST['comment'], ':date' => date("Y-m-d H:i:s"));
+    $param = array(':username' => $_POST['username'], ':comment' => $_POST['comment'], ':password' => $_POST['password'], ':date' => date("Y-m-d H:i:s"), ':ipaddr' => $_SERVER["REMOTE_ADDR"]);
     $stmt->execute($param);
+    header("Location:index.php");
+    exit();
 }
 else{
+    //POST以外はキャンセル
     echo '<script type="text/javascript">alert("不正な操作です。最初からやり直してください。"); location.href = "http://localhost/board";</script>';
     exit;
 }
